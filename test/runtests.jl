@@ -1,13 +1,15 @@
-import Registrator: RegServer.parse_submission_string
-
 using Test
 
-@test parse_submission_string("register()") == ("register", [], Dict{Symbol,String}())
-@test parse_submission_string("register(qux)") == ("register", ["qux"], Dict{Symbol,String}())
-@test parse_submission_string("register(qux, baz)") == ("register", ["qux", "baz"], Dict{Symbol,String}())
+@testset "Registrator" begin
 
-@test parse_submission_string("approved()") == ("approved", [], Dict{Symbol,String}())
+include("server.jl")
+include("regedit.jl")
 
-@test parse_submission_string("register(target=qux)") == ("register", String[], Dict(:target=>"qux"))
-@test parse_submission_string("register(target=qux, branch=baz)") == ("register", String[], Dict(:branch=>"baz",:target=>"qux"))
-@test parse_submission_string("register(qux, baz, target=foo, branch=bar)") == ("register", ["qux", "baz"], Dict(:branch=>"bar",:target=>"foo"))
+# Travis CI gets rate limited easily unless we have access to an API key.
+if get(ENV, "TRAVIS", "") == "true" && !haskey(ENV, "GITHUB_API_TOKEN")
+    @info "Skipping web tests on Travis CI (credentials are unavailable)"
+else
+    include("webui.jl")
+end
+
+end
